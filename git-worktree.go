@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,6 +28,16 @@ type model struct {
 
 func (m model) Init() tea.Cmd {
 	return nil
+}
+
+func get_worktrees() []string {
+	cmd := exec.Command("sh", "-c", "git worktree list")
+	out, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error running command: %s", err)
+	}
+	worktrees := strings.Split(string(out[:]), "\n")
+	return worktrees[:len(worktrees)-1]
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -64,16 +76,14 @@ func main() {
 		defer f.Close()
 	}
 
-	items := []list.Item{
-		item{title: "Branch 1", desc: "5 changes"},
-		item{title: "Branch 2", desc: "4 changes"},
-		item{title: "Branch 3", desc: "3 changes"},
-		item{title: "Branch 4", desc: "2 changes"},
-		item{title: "Branch 5", desc: "1 changes"},
+	items := []list.Item{}
+
+	for i, tree := range get_worktrees() {
+		items = append(items, item{title: tree, desc: fmt.Sprintf("%d", i)})
 	}
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
-	m.list.Title = "My Fave Things"
+	m.list.Title = "Select Worktree"
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
