@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -79,7 +80,9 @@ func main() {
 	items := []list.Item{}
 
 	for i, tree := range get_worktrees() {
-		items = append(items, item{title: tree, desc: fmt.Sprintf("%d", i)})
+		re_branch := regexp.MustCompile(`\[([^][]*)]`)
+		branch := re_branch.FindString(tree)
+		items = append(items, item{title: branch[1 : len(branch)-1], desc: fmt.Sprintf("%d", i)})
 	}
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
