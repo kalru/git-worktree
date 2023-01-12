@@ -41,6 +41,18 @@ func get_worktrees() []string {
 	return worktrees[:len(worktrees)-1]
 }
 
+func get_master_branch() string {
+	// git branch -l master main should return one of the 2 branches.
+	// This assumes one of these is the primary branch
+	cmd := exec.Command("sh", "-c", "git branch -l master main")
+	out, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error running command: %s", err)
+	}
+	lines := strings.Split(string(out[:]), "\n")
+	return lines[0][2:]
+}
+
 func get_files_changed(branch string) string {
 	// the last line of the command: git diff --stat
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("git diff %s --stat", branch))
@@ -50,7 +62,7 @@ func get_files_changed(branch string) string {
 	}
 	lines := strings.Split(string(out[:]), "\n")
 	if len(lines) < 2 {
-		return "No changes relative to main"
+		return fmt.Sprintf("No changes relative to %s", get_master_branch())
 	}
 	return lines[len(lines)-2]
 }
