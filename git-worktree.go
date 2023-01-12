@@ -49,6 +49,7 @@ func get_files_changed(branch string) string {
 		log.Printf("Error running command: %s", err)
 	}
 	lines := strings.Split(string(out[:]), "\n")
+	log.Printf("%d", len(lines))
 	return lines[len(lines)-2]
 }
 
