@@ -50,7 +50,7 @@ func get_files_changed(branch string) string {
 	}
 	lines := strings.Split(string(out[:]), "\n")
 	if len(lines) < 2 {
-		return "Branch up to date with origin/main test commit"
+		return "No changes relative to main"
 	}
 	return lines[len(lines)-2]
 }
