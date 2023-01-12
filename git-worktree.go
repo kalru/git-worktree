@@ -49,7 +49,9 @@ func get_files_changed(branch string) string {
 		log.Printf("Error running command: %s", err)
 	}
 	lines := strings.Split(string(out[:]), "\n")
-	log.Printf("%d", len(lines))
+	if len(lines) < 2 {
+		return "Branch up to date with origin/main"
+	}
 	return lines[len(lines)-2]
 }
 
