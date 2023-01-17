@@ -1,4 +1,4 @@
-package main
+package switchMenu
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
@@ -93,8 +94,8 @@ func (m model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func main() {
-	if len(os.Getenv("DEBUG")) > 0 {
+func Run() {
+	if viper.GetBool("debug") {
 		f, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
 			fmt.Println("fatal:", err)

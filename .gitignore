@@ -16,3 +16,6 @@
 
 # logs
 *.log
+
+# config
+.git-worktree.yaml
