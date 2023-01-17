@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -17,11 +18,12 @@ import (
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type item struct {
-	title, desc string
+	title, desc, path string
 }
 
 func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
+func (i item) Path() string        { return i.path }
 func (i item) FilterValue() string { return i.title }
 
 type model struct {
@@ -68,6 +70,20 @@ func get_files_changed(branch string) string {
 	return lines[len(lines)-2]
 }
 
+func open(path string) {
+	editor := viper.GetString("editor")
+	if editor != "code" {
+		fmt.Println("\nPlease set editor to one of the following options: [code, ]")
+		os.Exit(1)
+	}
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", editor, path))
+	out, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error running command: %s", err)
+	}
+	log.Printf("%s", out)
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -77,7 +93,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			fs := m.list.FilterState()
 			if fs == list.Unfiltered || fs == list.FilterApplied {
-				log.Printf("Index: %v, Selected item: %v", m.list.Index(), m.list.SelectedItem())
+				// log.Printf("Index: %v, Selected item: %v", m.list.Index(), m.list.SelectedItem())
+				// Not sure why it is so hard to get path here, but this is the only way I see now...
+				open(fmt.Sprintf("%s", reflect.ValueOf(m.list.SelectedItem()).FieldByName("path")))
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -110,7 +128,9 @@ func Run() {
 		re_branch := regexp.MustCompile(`\[([^][]*)]`)
 		branch := re_branch.FindString(tree)
 		branch = branch[1 : len(branch)-1]
-		items = append(items, item{title: branch, desc: get_files_changed(branch)})
+		re_path := regexp.MustCompile(`^([^\s]+)`)
+		path := re_path.FindString(tree)
+		items = append(items, item{title: branch, desc: get_files_changed(branch), path: path})
 	}
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}

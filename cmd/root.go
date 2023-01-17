@@ -57,6 +57,8 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.git-worktree.yaml)")
+	// rootCmd.PersistentFlags().StringVarP(&editor, "editor", "e", "", "code editor to use when opening worktrees")
+	// viper.BindPFlag("editor", rootCmd.PersistentFlags().Lookup("editor"))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
