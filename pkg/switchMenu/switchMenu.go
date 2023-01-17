@@ -72,8 +72,8 @@ func get_files_changed(branch string) string {
 
 func open(path string) {
 	editor := viper.GetString("editor")
-	if editor != "code" {
-		fmt.Println("\nPlease set editor to one of the following options: [code, ]")
+	if editor != "code" && editor != "pycharm" {
+		fmt.Println("\nPlease set editor to one of the following options: [code, pycharm, ]")
 		os.Exit(1)
 	}
 	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s %s", editor, path))
