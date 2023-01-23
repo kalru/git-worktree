@@ -84,6 +84,33 @@ func open(path string) {
 	log.Printf("%s", out)
 }
 
+func pre_switch_hook() {
+	if viper.GetBool("PRE_SWITCH_HOOK_ENABLED") {
+		for _, cmd_str := range viper.GetStringSlice("PRE_SWITCH_HOOK") {
+			cmd := exec.Command("sh", "-c", cmd_str)
+			out, err := cmd.Output()
+			if err != nil {
+				log.Printf("Error running command: %s", err)
+			}
+			log.Printf("%s", out)
+		}
+	}
+}
+
+func post_switch_hook(path string) {
+	if viper.GetBool("POST_SWITCH_HOOK_ENABLED") {
+		for _, cmd_str := range viper.GetStringSlice("POST_SWITCH_HOOK") {
+			cmd := exec.Command("sh", "-c", cmd_str)
+			cmd.Dir = path
+			out, err := cmd.Output()
+			if err != nil {
+				log.Printf("Error running command: %s", err)
+			}
+			log.Printf("%s", out)
+		}
+	}
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -94,8 +121,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fs := m.list.FilterState()
 			if fs == list.Unfiltered || fs == list.FilterApplied {
 				// log.Printf("Index: %v, Selected item: %v", m.list.Index(), m.list.SelectedItem())
+				pre_switch_hook()
 				// Not sure why it is so hard to get path here, but this is the only way I see now...
-				open(fmt.Sprintf("%s", reflect.ValueOf(m.list.SelectedItem()).FieldByName("path")))
+				path := fmt.Sprintf("%s", reflect.ValueOf(m.list.SelectedItem()).FieldByName("path"))
+				open(path)
+				post_switch_hook(path)
 			}
 		}
 	case tea.WindowSizeMsg:
