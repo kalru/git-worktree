@@ -44,6 +44,15 @@ func get_worktrees() []string {
 	return worktrees[:len(worktrees)-1]
 }
 
+func get_branch_and_path(worktree string) (string, string) {
+	re_branch := regexp.MustCompile(`\[([^][]*)]`)
+	branch := re_branch.FindString(worktree)
+	branch = branch[1 : len(branch)-1]
+	re_path := regexp.MustCompile(`^([^\s]+)`)
+	path := re_path.FindString(worktree)
+	return branch, path
+}
+
 func get_master_branch() string {
 	// git branch -l master main should return one of the 2 branches.
 	// This assumes one of these is the primary branch
@@ -54,6 +63,17 @@ func get_master_branch() string {
 	}
 	lines := strings.Split(string(out[:]), "\n")
 	return lines[0][2:]
+}
+
+func Get_master_path() string {
+	master_branch := get_master_branch()
+	for _, tree := range get_worktrees() {
+		branch, path := get_branch_and_path(tree)
+		if branch == master_branch {
+			return path
+		}
+	}
+	return "."
 }
 
 func get_files_changed(branch string) string {
@@ -159,11 +179,7 @@ func Run() {
 	items := []list.Item{}
 
 	for _, tree := range get_worktrees() {
-		re_branch := regexp.MustCompile(`\[([^][]*)]`)
-		branch := re_branch.FindString(tree)
-		branch = branch[1 : len(branch)-1]
-		re_path := regexp.MustCompile(`^([^\s]+)`)
-		path := re_path.FindString(tree)
+		branch, path := get_branch_and_path(tree)
 		items = append(items, item{title: branch, desc: get_files_changed(branch), path: path})
 	}
 

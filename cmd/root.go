@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kalru/git-worktree/pkg/switchMenu"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -79,6 +80,7 @@ func initConfig() {
 		viper.AddConfigPath(home)
 		// Optionally look for config in the working directory
 		viper.AddConfigPath(".")
+		viper.AddConfigPath(switchMenu.Get_master_path())
 		viper.SetConfigType("yaml")
 		viper.SetConfigName(".git-worktree")
 	}
