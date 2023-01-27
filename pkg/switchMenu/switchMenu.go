@@ -2,6 +2,7 @@ package switchMenu
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -174,6 +175,8 @@ func Run() {
 			os.Exit(1)
 		}
 		defer f.Close()
+	} else {
+		log.SetOutput(ioutil.Discard)
 	}
 
 	items := []list.Item{}
