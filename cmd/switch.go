@@ -34,6 +34,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// switchCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.PersistentFlags().StringVarP(&editor, "editor", "e", "", "Code editor to use when opening worktrees")
-	viper.BindPFlag("editor", rootCmd.PersistentFlags().Lookup("editor"))
+	switchCmd.PersistentFlags().StringVarP(&editor, "editor", "e", "", "Code editor to use when opening worktrees")
+	viper.BindPFlag("editor", switchCmd.PersistentFlags().Lookup("editor"))
 }
