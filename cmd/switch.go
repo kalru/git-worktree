@@ -10,6 +10,7 @@ import (
 )
 
 var editor string
+var reset bool
 
 // switchCmd represents the switch command
 var switchCmd = &cobra.Command{
@@ -35,5 +36,8 @@ func init() {
 	// is called directly, e.g.:
 	// switchCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	switchCmd.PersistentFlags().StringVarP(&editor, "editor", "e", "", "Code editor to use when opening worktrees")
+	switchCmd.PersistentFlags().BoolVarP(&reset, "reset", "r", false, "Whether to run reset commands on a branch before switching to it")
+
 	viper.BindPFlag("editor", switchCmd.PersistentFlags().Lookup("editor"))
+	viper.BindPFlag("reset", switchCmd.PersistentFlags().Lookup("reset"))
 }

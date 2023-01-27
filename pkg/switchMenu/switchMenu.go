@@ -84,30 +84,33 @@ func open(path string) {
 	log.Printf("%s", out)
 }
 
+func run_command_list(key string, path string) {
+	for _, cmd_str := range viper.GetStringSlice(key) {
+		cmd := exec.Command("sh", "-c", cmd_str)
+		cmd.Dir = path
+		out, err := cmd.Output()
+		if err != nil {
+			log.Printf("Error running command: %s", err)
+		}
+		log.Printf("%s", out)
+	}
+}
+
 func pre_switch_hook() {
 	if viper.GetBool("PRE_SWITCH_HOOK_ENABLED") {
-		for _, cmd_str := range viper.GetStringSlice("PRE_SWITCH_HOOK") {
-			cmd := exec.Command("sh", "-c", cmd_str)
-			out, err := cmd.Output()
-			if err != nil {
-				log.Printf("Error running command: %s", err)
-			}
-			log.Printf("%s", out)
-		}
+		run_command_list("PRE_SWITCH_HOOK", "")
+	}
+}
+
+func reset_hook(path string) {
+	if viper.GetBool("RESET") {
+		run_command_list("RESET_HOOK", path)
 	}
 }
 
 func post_switch_hook(path string) {
 	if viper.GetBool("POST_SWITCH_HOOK_ENABLED") {
-		for _, cmd_str := range viper.GetStringSlice("POST_SWITCH_HOOK") {
-			cmd := exec.Command("sh", "-c", cmd_str)
-			cmd.Dir = path
-			out, err := cmd.Output()
-			if err != nil {
-				log.Printf("Error running command: %s", err)
-			}
-			log.Printf("%s", out)
-		}
+		run_command_list("POST_SWITCH_HOOK", path)
 	}
 }
 
@@ -121,9 +124,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fs := m.list.FilterState()
 			if fs == list.Unfiltered || fs == list.FilterApplied {
 				// log.Printf("Index: %v, Selected item: %v", m.list.Index(), m.list.SelectedItem())
-				pre_switch_hook()
 				// Not sure why it is so hard to get path here, but this is the only way I see now...
 				path := fmt.Sprintf("%s", reflect.ValueOf(m.list.SelectedItem()).FieldByName("path"))
+				reset_hook(path)
+				pre_switch_hook()
 				open(path)
 				post_switch_hook(path)
 			}
