@@ -19,3 +19,9 @@
 
 # config
 .git-worktree.yaml
+
+# pycharm
+.idea/
+
+# binary
+git-worktree
