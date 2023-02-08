@@ -111,7 +111,7 @@ func run_command_list(key string, path string) {
 		cmd.Dir = path
 		out, err := cmd.Output()
 		if err != nil {
-			log.Printf("Error running command: %s", err)
+			log.Printf("Error running command: %s, %s", cmd_str, err)
 		}
 		log.Printf("%s", out)
 	}
